@@ -20,13 +20,16 @@ class Context {
     }
 
     render() {
-        let output = '';
+        this.structure.forEach(this.renderAction.bind(this));
+        return this.outputRendered();
+    }
 
-        this.structure.forEach(el => {
-            if (el.type === 'string') {
-                output += `"${el.render()}"`;
-            }
-        });
+    renderAction(el) {
+        this.output += el;
+    }
+
+    outputRendered() {
+        return this.output;
     }
 }
 

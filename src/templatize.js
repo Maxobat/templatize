@@ -1,62 +1,77 @@
-const Context = require('./context/string');
-const StringContext = require('./context/string');
-const ExpressionContext = require('./context/expression');
 
-class Templatize extends Context {
+class Templatize {
     constructor(input) {
-        super(null);
-        this.currentContext = this.getInstance();
         this.baseInput = input;
+        this.input = input;
+        this.outputStucture = [];
+        this.output = '';
+        this.escapeString = '@@@';
     }
 
-    get context() {
-        return this.currentContext;
+    render() {
+        return this.output;
     }
 
-    set context(val) {
-        this.structure.push(this.context);
-        this.currentContext = val;
+    renderWrapped(character = '`') {
+        return this.output === '' ? this.output : (character + this.output + character);
     }
 
     start() {
-        const input = this.baseInput;
-        const inputLength = input.length;
+        if (this.input !== '') {
+            this.strip();
+            this.escapeExpressionAdditives();
+            this.interpret();
+            this.unescapeExpressionAdditives();
+        }
+
+        return this;
+    }
+
+    strip() {
+        this.input.replace('\n', ' ');
+    }
+
+    escapeExpressionAdditives() {
+        this.input = this.input.replace(/(\(.+\+.+\))/gmi, match => {
+            return match.replace('+', this.escapeString);
+        });
+    }
+
+    unescapeExpressionAdditives() {
+        this.output = this.output.replace(this.escapeString, '+');
+    }
+
+    interpret() {
         let i = 0;
+        let structure = this.input.split(' + ');
+        const structureLen = structure.length;
 
-        while (i < inputLength) {
-            const currentChar = input.charAt(i);
-
-            this.previousChar = this.currentChar;
-            this.currentChar = currentChar;
-            this.interpret(currentChar);
+        while (i < structureLen) {
+            this.parsePiece(structure[i]);
             i++;
         }
 
-        this.structure.push(this.context);
-
-        return this;
-        // return this.render();
+        this.output = this.outputStucture.join('');
     }
 
-    interpret(character) {
-        switch (true) {
-        case character === '"':
-            if (this.context.type !== 'string') {
-                this.context = new StringContext();
-            } else {
-                this.context = this.context.close();
-            }
-            break;
-        case character.match(/\w/) !== null:
-            if (!this.context.type) {
-                this.context = new ExpressionContext();
-            }
-        // case character === '+':
-        // case character.match(/\s/):
-        default:
-            this.context.input(character);
-            // console.log('NOT A QUOTE');
+    parsePiece(piece) {
+        let parsed;
+
+        if (piece.startsWith("'") || piece.startsWith('"')) {
+            parsed = this.parseString(piece);
+        } else {
+            parsed = this.parseExpression(piece);
         }
+
+        this.outputStucture.push(parsed);
+    }
+
+    parseString(str) {
+        return str.substr(1, str.length - 2);
+    }
+
+    parseExpression(expr) {
+        return '${' + expr + '}';
     }
 }
 
