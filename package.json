@@ -1,7 +1,10 @@
 {
-  "name": "templatize",
+  "name": "templatize-string",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Max Pennington",
-  "license": "MIT"
+  "license": "MIT",
+  "bin": {
+    "templatize-string": "bin/templatize.js"
+  }
 }

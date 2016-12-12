@@ -6,6 +6,7 @@ class Templatize {
         this.outputStucture = [];
         this.output = '';
         this.escapeString = '@@@';
+        this.additiveEscapeString = '@@@@';
     }
 
     render() {
@@ -19,7 +20,7 @@ class Templatize {
     start() {
         if (this.input !== '') {
             this.strip();
-            this.escapeExpressionAdditives();
+            this.escapeChars();
             this.interpret();
             this.unescapeExpressionAdditives();
         }
@@ -28,7 +29,17 @@ class Templatize {
     }
 
     strip() {
-        this.input.replace('\n', ' ');
+        this.input = this.input.replace('\n', '');
+        this.input = this.input.replace('\t', '');
+    }
+
+    escapeChars() {
+        this.escape(/(\(.+\+.+\))/gmi, match => match.replace('+', this.escapeString));
+        this.escape(/(\s|\t)*\+(\s|\t)*/gmi, this.additiveEscapeString);
+    }
+
+    escape(pattern, replacement) {
+        this.input = this.input.replace(pattern, replacement);
     }
 
     escapeExpressionAdditives() {
@@ -37,13 +48,17 @@ class Templatize {
         });
     }
 
+    escapeAdditives() {
+        this.input = this.input
+    }
+
     unescapeExpressionAdditives() {
         this.output = this.output.replace(this.escapeString, '+');
     }
 
     interpret() {
         let i = 0;
-        let structure = this.input.split(' + ');
+        let structure = this.input.split(this.additiveEscapeString);
         const structureLen = structure.length;
 
         while (i < structureLen) {
