@@ -31,7 +31,7 @@ Returns templatized string.
 
 #### renderWrapped
 Arguments:
-- wrappingChar -> The character the rendered string will be wrapped in. Default is ``` ` ```.
+- wrappingChar - The character the rendered string will be wrapped in. Default is ``` ` ```.
 
 Returns templatized string wrapped with the specified character.
 ```javascript
