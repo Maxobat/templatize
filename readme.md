@@ -1,5 +1,5 @@
 # Templatize
-### Convert additive strings to ES6 template strings.
+### Convert additive strings to ES6 template strings
 
 ## Example
 ```javascript
